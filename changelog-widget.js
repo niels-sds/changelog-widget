@@ -221,19 +221,13 @@
       .replace(/"/g, "&quot;");
   }
 
-  function renderSummary(items) {
-    return items
-      .map(function (item) {
-        return (
-          '<sds-row gap="spacing-200" alignment="start">' +
-          '<sds-icon name="dash" color="icon-default" size="small" aria-hidden="true" style="flex-shrink:0;margin-top:3px"></sds-icon>' +
-          '<sds-content as="p" size="body" color="text-body" text="' +
-          escapeHtml(item) +
-          '"></sds-content>' +
-          "</sds-row>"
-        );
-      })
-      .join("");
+  function renderSummary(summary) {
+    if (!summary || typeof summary !== "string" || summary === "") return "";
+    return (
+      '<sds-content as="p" size="body" color="text-body" text="' +
+      escapeHtml(summary) +
+      '" style="line-height:var(--line-height-text);margin-bottom:var(--spacing-200)"></sds-content>'
+    );
   }
 
   function renderNewItems(items) {
@@ -284,15 +278,46 @@
     return fixes
       .map(function (fix) {
         return (
-          '<sds-row gap="spacing-200" alignment="start">' +
-          '<sds-icon name="check-sm" color="icon-success" size="small" aria-hidden="true" style="flex-shrink:0;margin-top:3px"></sds-icon>' +
-          '<sds-content as="p" size="body" color="text-body" text="' +
+          '<sds-content as="p" size="body" color="text-body" text="• ' +
           escapeHtml(fix) +
-          '"></sds-content>' +
-          "</sds-row>"
+          '"></sds-content>'
         );
       })
       .join("");
+  }
+
+  function renderUserImpact(impact) {
+    if (!impact || Object.keys(impact).length === 0) return "";
+
+    var html =
+      '<sds-column gap="spacing-200">' +
+      '<div style="border-top:2px solid var(--color-border-default);padding-top:var(--spacing-300);margin-bottom:var(--spacing-200)">' +
+      '<sds-content as="p" size="label" color="text-heading" style="text-transform:uppercase;letter-spacing:1px;font-weight:600" text="User Impact"></sds-content>' +
+      "</div>";
+
+    Object.keys(impact).forEach(function (role) {
+      var items = impact[role] || [];
+      html +=
+        '<div style="margin-top:var(--spacing-200)">' +
+        '<sds-content as="p" size="label" color="text-heading" text="' +
+        escapeHtml(role) +
+        ':" style="margin-bottom:var(--spacing-100)"></sds-content>' +
+        '<sds-column gap="spacing-100" style="margin-left:var(--spacing-300)">' +
+        items
+          .map(function (item) {
+            return (
+              '<sds-content as="p" size="body" color="text-body" text="• ' +
+              escapeHtml(item) +
+              '"></sds-content>'
+            );
+          })
+          .join("") +
+        "</sds-column>" +
+        "</div>";
+    });
+
+    html += "</sds-column>";
+    return html;
   }
 
   function renderActionRequired(items) {
@@ -319,10 +344,9 @@
     if (release.whatsNew.length > 0) {
       sections +=
         '<sds-column gap="spacing-300">' +
-        '<sds-row alignment="center" gap="spacing-200">' +
-        '<sds-icon name="plus-circle" color="icon-success" size="small" aria-hidden="true"></sds-icon>' +
-        '<sds-content as="p" size="label" color="text-heading" text="What\'s New"></sds-content>' +
-        "</sds-row>" +
+        '<div style="border-top:2px solid var(--color-border-default);padding-top:var(--spacing-300);margin-bottom:var(--spacing-200)">' +
+        '<sds-content as="p" size="label" color="text-heading" style="text-transform:uppercase;letter-spacing:1px;font-weight:600" text="What\'s New"></sds-content>' +
+        "</div>" +
         renderNewItems(release.whatsNew) +
         "</sds-column>";
     }
@@ -331,10 +355,9 @@
     if (release.whatsImproved.length > 0) {
       sections +=
         '<sds-column gap="spacing-300">' +
-        '<sds-row alignment="center" gap="spacing-200">' +
-        '<sds-icon name="arrow-up-circle" color="icon-action-default" size="small" aria-hidden="true"></sds-icon>' +
-        '<sds-content as="p" size="label" color="text-heading" text="What\'s Improved"></sds-content>' +
-        "</sds-row>" +
+        '<div style="border-top:2px solid var(--color-border-default);padding-top:var(--spacing-300);margin-bottom:var(--spacing-200)">' +
+        '<sds-content as="p" size="label" color="text-heading" style="text-transform:uppercase;letter-spacing:1px;font-weight:600" text="What\'s Improved"></sds-content>' +
+        "</div>" +
         renderImprovedItems(release.whatsImproved) +
         "</sds-column>";
     }
@@ -343,21 +366,27 @@
     if (release.fixes.length > 0) {
       sections +=
         '<sds-column gap="spacing-200">' +
-        '<sds-row alignment="center" gap="spacing-200">' +
-        '<sds-icon name="bug" color="icon-neutral" size="small" aria-hidden="true"></sds-icon>' +
-        '<sds-content as="p" size="label" color="text-heading" text="Fixes"></sds-content>' +
-        "</sds-row>" +
+        '<div style="border-top:2px solid var(--color-border-default);padding-top:var(--spacing-300);margin-bottom:var(--spacing-200)">' +
+        '<sds-content as="p" size="label" color="text-heading" style="text-transform:uppercase;letter-spacing:1px;font-weight:600" text="Fixes"></sds-content>' +
+        "</div>" +
         renderFixes(release.fixes) +
         "</sds-column>";
+    }
+
+    // User Impact
+    if (release.userImpact && Object.keys(release.userImpact).length > 0) {
+      var userImpactHtml = renderUserImpact(release.userImpact);
+      if (userImpactHtml) {
+        sections += userImpactHtml;
+      }
     }
 
     // Action Required
     if (release.actionRequired.length > 0) {
       sections +=
         '<sds-column gap="spacing-200">' +
-        '<div style="display:flex;align-items:center;gap:var(--spacing-200)">' +
-        '<sds-icon name="exclamation-triangle" color="icon-warning" size="small" aria-hidden="true"></sds-icon>' +
-        '<sds-content as="p" size="label" color="text-heading" text="Action Required"></sds-content>' +
+        '<div style="border-top:2px solid var(--color-border-default);padding-top:var(--spacing-300);margin-bottom:var(--spacing-200)">' +
+        '<sds-content as="p" size="label" color="text-heading" style="text-transform:uppercase;letter-spacing:1px;font-weight:600" text="Action Required"></sds-content>' +
         "</div>" +
         renderActionRequired(release.actionRequired) +
         "</sds-column>";
@@ -419,12 +448,38 @@
       const theme = this.getAttribute("theme") || "brms";
       this.style.display = "contents";
       ensureSdsLoaded(theme);
-      this._render();
+
+      const apiUrl = this.getAttribute("api-url");
+      if (apiUrl) {
+        this._fetchAndRender(apiUrl);
+      } else {
+        this._render(DUMMY_RELEASES);
+      }
     }
 
-    _render() {
+    _fetchAndRender(apiUrl) {
       const self = this;
-      const releasesHtml = renderReleases(DUMMY_RELEASES);
+      this._render(DUMMY_RELEASES); // render placeholder immediately
+
+      fetch(apiUrl, {
+        credentials: "same-origin",
+        headers: { Accept: "application/json" },
+      })
+        .then(function (res) {
+          if (!res.ok)
+            throw new Error("Failed to load changelog (" + res.status + ")");
+          return res.json();
+        })
+        .then(function (releases) {
+          self._render(Array.isArray(releases) ? releases : DUMMY_RELEASES);
+        })
+        .catch(function () {
+          self._render(DUMMY_RELEASES);
+        });
+    }
+
+    _render(releases) {
+      const releasesHtml = renderReleases(releases);
 
       this.innerHTML =
         "<sds-popout-drawer" +
