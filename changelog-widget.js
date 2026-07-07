@@ -12,7 +12,7 @@
  *   app     - Application name shown in the drawer title (default: "BRMS")
  *
  * Future:
- *   api-url - URL of the Nebula API endpoint returning enriched release notes
+ *   api-url - URL of the Confluence API endpoint returning enriched release notes
  */
 
 (function () {
@@ -41,7 +41,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Dummy release data (replace with Nebula API call)
+  // Dummy release data (replace with Confluence API call)
   // ---------------------------------------------------------------------------
 
   var DUMMY_RELEASES = [
@@ -417,7 +417,7 @@
       // Sections
       sections +
       // Source attribution
-      '<sds-content as="p" size="meta" color="text-secondary" text="Source: Nebula" style="opacity:0.6"></sds-content>' +
+      '<sds-content as="p" size="meta" color="text-secondary" text="Source: Confluence" style="opacity:0.6"></sds-content>' +
       "</sds-column>"
     );
   }
