@@ -52,10 +52,6 @@ Add the changelog widget to your application with a single script tag:
 </div>
 ```
 
-## Demo
-
-View the [interactive demo](https://htmlpreview.github.io/?https://github.com/niels-sds/changelog-widget/blob/main/demo.html) in your browser.
-
 ## Future Enhancements
 
 - **Nebula API Integration** – Automatically fetch releases from Nebula release management platform
